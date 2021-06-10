@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
-	"strconv"
 
 	"github.com/tealeg/xlsx/v3"
 )
@@ -132,7 +130,7 @@ func writeRowToXls(sheet *xlsx.Sheet, record []string, exampleRow *xlsx.Row) {
 	for k, v := range record {
 		cell = row.AddCell()
 
-		setCellValue(cell, v)
+		cell.Value = v
 
 		if exampleRow != nil && cellsLen > k {
 			style := exampleRow.GetCell(k).GetStyle()
@@ -142,25 +140,6 @@ func writeRowToXls(sheet *xlsx.Sheet, record []string, exampleRow *xlsx.Row) {
 	}
 }
 
-// setCellValue set data in correct format.
-func setCellValue(cell *xlsx.Cell, v string) {
-	intVal, err := strconv.Atoi(v)
-	if err == nil {
-		if intVal < math.MinInt32 { // Long numbers are displayed incorrectly in Excel
-			cell.SetInt(intVal)
-			return
-		}
-		cell.Value = v
-		return
-	}
-
-	floatVal, err := strconv.ParseFloat(v, 64)
-	if err == nil {
-		cell.SetFloat(floatVal)
-		return
-	}
-	cell.Value = v
-}
 
 // getCsvData read's data from CSV file.
 func getCsvData(dataFileName string) (*csv.Reader, error) {
